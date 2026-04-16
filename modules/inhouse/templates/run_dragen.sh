@@ -39,22 +39,21 @@ do
 		refDir="!{params.reference_GRCh38}"
 		bedfile="/staging/development/bed/ncbiRefSeq_hg38_2022-10-28_exons_slop_50bp_MANE_COMPLETED_inclGHRregions.merged.bed"
 	else
-		refDir="!{params.reference_GRCh37}"
+		refDir="!{params.referenceDir}"
 		bedfile="/staging/development/bed/${captKit}.bed"
 	fi
 	
 	echo -e "${bedfile}" > "!{params.resultsDir}/${rawdata}/Analysis/bedfile.txt"
-	
-#	"/opt/dragen/!{params.dragenVersion}/bin/dragen" -f \
-	dragen -f \
+#	dragen -f \	
+	"/opt/dragen/!{params.dragenVersion}/bin/dragen" -f \
 		--enable-map-align-output true \
 		--enable-bam-indexing true \
 		--watchdog-active-timeout 360 -r "${refDir}" \
 		--intermediate-results-dir "!{params.intermediateDir}/${rawdata}/" \
 		--output-directory "!{params.resultsDir}/${rawdata}/Analysis/${sampleId}" \
 		--output-file-prefix "${sampleId}" \
-		--trim-adapter-read1 /opt/edico/config/adapter_sequences.fasta \
-		--trim-adapter-read2 /opt/edico/config/adapter_sequences.fasta \
+		--trim-adapter-read1 /opt/dragen/4.3.13/config/adapter_sequences.fasta \
+		--trim-adapter-read2 /opt/dragen/4.3.13/config/adapter_sequences.fasta \
 		--trim-min-quality 20 \
 		--trim-min-length 20 \
 		--read-trimmers polyg,quality,adapter \

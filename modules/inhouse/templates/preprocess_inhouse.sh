@@ -127,10 +127,8 @@ then
 fi
 if [[ -e "!{samples.externalSampleID}.targeted.vcf.gz" ]]
 then
-	bcftools reheader -s "!{samples.externalSampleID}.newVCFHeader.txt" "!{samples.externalSampleID}.targeted.vcf.gz" -o "!{samples.externalSampleID}.targeted.reheadered.vcf.gz"
-	tabix -p vcf "!{samples.externalSampleID}.targeted.reheadered.vcf.gz"
-	rsync -Lv "!{samples.externalSampleID}.targeted.reheadered.vcf.gz" "!{samples.projectResultsDir}/variants/additional_analysis/!{samples.externalSampleID}.targeted.vcf.gz"
-	rsync -Lv "!{samples.externalSampleID}.targeted.reheadered.vcf.gz.tbi" "!{samples.projectResultsDir}/variants/additional_analysis/!{samples.externalSampleID}.targeted.vcf.gz.tbi"
+	rsync -Lv "!{samples.externalSampleID}.targeted.vcf.gz" "!{samples.projectResultsDir}/variants/additional_analysis/!{samples.externalSampleID}.targeted.vcf.gz"
+	rsync -Lv "!{samples.externalSampleID}.targeted.vcf.gz.tbi" "!{samples.projectResultsDir}/variants/additional_analysis/!{samples.externalSampleID}.targeted.vcf.gz.tbi"
 fi
 if [[ -e "!{samples.externalSampleID}.repeats.vcf.gz" ]]
 then
