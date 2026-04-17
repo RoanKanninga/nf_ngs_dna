@@ -28,8 +28,7 @@ fi
 ref=$(awk -v b=${buildIDFieldIndex} 'BEGIN {FS=","}{if (NR>1){print $b}}' "!{params.samplesheet}" | sort -V | uniq)
 
 
-
-for sampleId in "${lines[@]}"
+for line in "${lines[@]}"
 do
 	sampleId=$(echo "${line}" | awk 'BEGIN {FS="|"}{print $1}')
 	captKit=$(echo "${line}" | awk 'BEGIN {FS="|"}{print $2}')
