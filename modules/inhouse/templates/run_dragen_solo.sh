@@ -37,12 +37,13 @@ else
 	refDir="!{params.referenceDir}"
 	bedfile="/staging/development/bed/${captKit}.bed"
 	shortBed="${captKit}"
-	if [[ "${captKit}" == *"Targeted"* ]]
-	then
-		highCov="true"
-	fi
-	
 fi
+
+if [[ "${captKit}" == *"Targeted"* ]]
+then
+	highCov="true"
+fi
+
 echo -e "${bedfile}" > "!{params.resultsDir}/${rawdata}/Analysis/bedfile.txt"
 
 echo "[${sampleId}]"
@@ -54,8 +55,8 @@ echo "[${sampleId}]"
 --intermediate-results-dir "!{params.intermediateDir}/${rawdata}/" \
 --output-directory "!{params.resultsDir}/${rawdata}/Analysis/${sampleId}" \
 --output-file-prefix "${sampleId}" \
---trim-adapter-read1 /opt/dragen/4.3.13/config/adapter_sequences.fasta \
---trim-adapter-read2 /opt/dragen/4.3.13/config/adapter_sequences.fasta \
+--trim-adapter-read1 "/opt/dragen/!{params.dragenVersion}/config/adapter_sequences.fasta" \
+--trim-adapter-read2 "/opt/dragen/!{params.dragenVersion}/config/adapter_sequences.fasta" \
 --trim-min-quality 20 \
 --trim-min-length 20 \
 --read-trimmers polyg,quality,adapter \

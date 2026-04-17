@@ -42,6 +42,11 @@ do
 		bedfile="/staging/development/bed/${captKit}.bed"
 	fi
 	
+	if [[ "${captKit}" == *"Targeted"* ]]
+	then
+		highCov="true"
+	fi
+	
 	echo -e "${bedfile}" > "!{params.resultsDir}/${rawdata}/Analysis/bedfile.txt"
 #	dragen -f \	
 	"/opt/dragen/!{params.dragenVersion}/bin/dragen" -f \
@@ -51,8 +56,8 @@ do
 		--intermediate-results-dir "!{params.intermediateDir}/${rawdata}/" \
 		--output-directory "!{params.resultsDir}/${rawdata}/Analysis/${sampleId}" \
 		--output-file-prefix "${sampleId}" \
-		--trim-adapter-read1 /opt/dragen/4.3.13/config/adapter_sequences.fasta \
-		--trim-adapter-read2 /opt/dragen/4.3.13/config/adapter_sequences.fasta \
+		--trim-adapter-read1 "/opt/dragen/!{params.dragenVersion}/config/adapter_sequences.fasta" \
+		--trim-adapter-read2 "/opt/dragen/!{params.dragenVersion}/config/adapter_sequences.fasta" \
 		--trim-min-quality 20 \
 		--trim-min-length 20 \
 		--read-trimmers polyg,quality,adapter \
@@ -71,6 +76,7 @@ do
 		--enable-sv true \
 		--enable-cnv true \
 		--cnv-enable-self-normalization true \
+		--high-coverage-support-mode "${highCov}" \
 		--repeat-genotype-enable true
 done	
 
