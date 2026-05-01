@@ -95,7 +95,7 @@ then
 			echo "${fastq_list}" > new_fastq_list.csv
 			count=1
 		else
-			extId=$(echo "${fastq_list}" | awk 'BEGIN {FS=","}{print $2}')
+			extId=$(echo "${fastq_list},capturingKit" | awk 'BEGIN {FS=","}{print $2}')
 			captKit=$(grep ${extId} "!{params.samplesheet}" | head -1 | awk -v eIndex="${capturingKitFieldIndex}" 'BEGIN {FS=","}{print $eIndex}')
 			captKit=$(echo "${captKit}" | awk 'BEGIN {FS="/"}{print $2}')
 			echo -e "${fastq_list},${captKit}" >> new_fastq_list.csv
