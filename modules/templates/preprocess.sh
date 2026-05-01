@@ -3,6 +3,8 @@
 set -o pipefail
 set -eu
 
+perl -pi -e 's|!{samples.combinedIdentifier}|!{samples.externalSampleID}|' "!{samples.combinedIdentifier}"*.md5
+
 rename "!{samples.combinedIdentifier}" "!{samples.externalSampleID}" "!{samples.combinedIdentifier}"*
 
 bedfile=!{params.dataDir}/!{samples.capturingKit}/human_g1k_v37/captured.merged.bed
