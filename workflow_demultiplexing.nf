@@ -14,6 +14,7 @@ log.info """\
 
 include { create_illumina_samplesheet } from './modules/inhouse/create_illumina_samplesheet.nf'
 include { bcl2fastq } from './modules/inhouse/bcl2fastq.nf'
+include { copyInfo } from './modules/inhouse/copyInfo.nf'
 
 def split_samples(sample) {
     check_fastq(sample.fastqAvailable)
@@ -36,6 +37,9 @@ workflow {
 	ch_samplesheet_check 
 	| bcl2fastq
 	| set{fastq_processed}
+	
+	fastq_processed
+	| copyInfo
 
 }
 

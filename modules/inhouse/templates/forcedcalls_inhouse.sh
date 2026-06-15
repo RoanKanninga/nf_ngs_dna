@@ -4,16 +4,24 @@ set -o pipefail
 set -eu
 
 fasta="!{params.reference_GRCh38}"
+build="!{samples.build}"
 
 if [[ "!{samples.build}" == "GRCh37" ]]
 then
-    fasta="!{params.reference_GRCh37}"	
+	fasta="!{params.reference_GRCh37}"
 fi
+
+if [[ "!{samples.build}" == "PanGen38" ]]
+then
+	fasta="!{params.reference_GRCh37}"	
+	build="GRCh38"
+fi
+
 
 if [[ -e "!{samples.externalSampleID}.bam" ]]
 then
 	bcftools mpileup \
-	-Ou -f "${fasta}" "!{samples.externalSampleID}.bam" -R "!{params.dataDir}/UMCG/concordanceCheckSnps_!{samples.build}.bed" \
+	-Ou -f "${fasta}" "!{samples.externalSampleID}.bam" -R "!{params.dataDir}/UMCG/concordanceCheckSnps_${build}.bed" \
 	| bcftools call -m -Ob -o "!{samples.externalSampleID}.concordanceCheckCalls.vcf"
 
 elif [[ -e "!{samples.projectResultsDir}/alignment/!{samples.externalSampleID}.bam" ]]

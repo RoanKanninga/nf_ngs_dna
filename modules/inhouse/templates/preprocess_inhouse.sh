@@ -9,8 +9,14 @@ bedfile="!{params.dataDir}/Agilent/${capturing}/human_g1k_v37/captured.merged.be
 
 if [[ "!{samples.build}" == "GRCh38" ]]
 then
-    bedfile="!{params.bedfile_GRCh38}"
+	bedfile="!{params.bedfile_GRCh38}"
 fi
+if [[ "!{samples.build}" == "PanGen38" ]]
+then
+	bedfile="!{params.bedfile_GRCh38}"
+fi
+
+
 echo "##intervals=[${bedfile}]" > "bedfile.txt"
 
 bcftools annotate -x 'FORMAT/AF,FORMAT/F1R2,FORMAT/F2R1,FORMAT/GP' "!{samples.externalSampleID}.hard-filtered.vcf.gz" | bcftools annotate -h "bedfile.txt" > "!{samples.externalSampleID}.variant.calls.genotyped.vcf"
