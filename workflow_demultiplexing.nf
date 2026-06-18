@@ -14,13 +14,9 @@ log.info """\
 
 include { create_illumina_samplesheet } from './modules/inhouse/create_illumina_samplesheet.nf'
 include { bcl2fastq } from './modules/inhouse/bcl2fastq.nf'
-include { run_dragen } from './modules/inhouse/run_dragen.nf'
-include { create_project_samplesheet } from './modules/inhouse/create_project_samplesheet.nf'
 include { copyInfo } from './modules/inhouse/copyInfo.nf'
 
-
 def split_samples(sample) {
-    sample.projectResultsDir=params.tmpDataDir+"/projects/NGS_DNA/"
     check_fastq(sample.fastqAvailable)
     return sample
 }
@@ -44,13 +40,6 @@ workflow {
 	
 	fastq_processed
 	| copyInfo
-	
-	fastq_processed
-	| run_dragen
-	| set{ ch_processed }
-
-	ch_processed.collect()
-	| create_project_samplesheet
 
 }
 

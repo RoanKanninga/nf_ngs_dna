@@ -1,4 +1,7 @@
+#!/bin/bash
 
+set -o pipefail
+set -eu
 rawdata=$(basename "!{params.samplesheet}" '.csv') 
 
 sampleId=$(head -2 'fastq_list.csv' | tail -1 | awk 'BEGIN {FS=","}{print $2}' )
@@ -25,7 +28,7 @@ fi
 
 ref=$(awk -v b=${buildIDFieldIndex} 'BEGIN {FS=","}{if (NR>1){print $b}}' "!{params.samplesheet}" | sort -V | uniq)
 
-
+pangenome='false'
 echo "REFREFREF: ${ref}"
 highCov="false"
 if [[ "${ref}" == 'GRCh38' ]]
@@ -33,10 +36,19 @@ then
 	refDir="!{params.reference_GRCh38}"
 	bedfile="/staging/development/bed/ncbiRefSeq_hg38_2022-10-28_exons_slop_50bp_MANE_COMPLETED_inclGHRregions.merged.bed"
 	shortBed='GRCH38exons'
+elif [[ "${ref}" == 'PanGen38' ]]
+then
+	refDir="!{params.reference_PanGen38}"
+	bedfile="/staging/development/bed/ncbiRefSeq_hg38_2022-10-28_exons_slop_50bp_MANE_COMPLETED_inclGHRregions.merged.bed"
+	pangenome='true'
+elif [[ "${ref}" == 'CHM13' ]]
+then
+	refDir="!{params.reference_PanGenCHM13}"
+	bedfile="/staging/development/bed/ncbiRefSeq_hg38_2022-10-28_exons_slop_50bp_MANE_COMPLETED_inclGHRregions.merged.bed"
+	pangenome='true'
 else
 	refDir="!{params.referenceDir}"
 	bedfile="/staging/development/bed/${captKit}.bed"
-	shortBed="${captKit}"
 fi
 
 if [[ "${captKit}" == *"Targeted"* ]]
@@ -65,19 +77,20 @@ echo "[${sampleId}]"
 --fastq-list fastq_list.csv \
 --fastq-list-sample-id "${sampleId}" \
 --enable-variant-caller true \
---vc-enable-gatk-acceleration false \
 --vc-enable-vcf-output true \
 --vc-emit-ref-confidence GVCF \
 --vc-ml-enable-recalibration false \
---vc-target-bed "${bedfile}" \
---qc-coverage-region-1 "${bedfile}" \
---qc-coverage-reports-1 cov_report \
 --enable-sv true \
 --enable-cnv true \
 --cnv-enable-tracks true \
 --cnv-enable-self-normalization true \
+--validate-pangenome-reference="${pangenome}" \
 --high-coverage-support-mode "${highCov}" \
---repeat-genotype-enable true
+--repeat-genotype-enable true \
+--vc-target-bed "${bedfile}" \ ## turn off in DRAGEN-4.5
+--qc-coverage-region-1 "${bedfile}" \ ## turn off in DRAGEN-4.5
+--qc-coverage-reports-1 cov_report \ ## turn off in DRAGEN-4.5
+--vc-enable-gatk-acceleration false  ## turn off in DRAGEN-4.5
 
 
 touch stats.tsv
