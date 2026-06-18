@@ -1,6 +1,4 @@
----vc-target-bed "${bedfile}" \
----qc-coverage-region-1 "${bedfile}" \
----qc-coverage-reports-1 cov_report \#!/bin/bash
+#!/bin/bash
 
 set -o pipefail
 set -eu
