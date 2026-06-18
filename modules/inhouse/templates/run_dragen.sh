@@ -84,7 +84,7 @@ do
 		--enable-cnv true \
 		--cnv-enable-self-normalization true \
 		--high-coverage-support-mode "${highCov}" \
-		--repeat-genotype-enable true \ ## turn off in DRAGEN-4.5
+		--repeat-genotype-enable true \
 		--vc-target-bed "${bedfile}" \ ## turn off in DRAGEN-4.5
 		--qc-coverage-region-1 "${bedfile}" \ ## turn off in DRAGEN-4.5
 		--qc-coverage-reports-1 cov_report \ ## turn off in DRAGEN-4.5
