@@ -104,7 +104,7 @@ jobs:
               description = """Nexflow ngs_dna pipeline used in the UMCG."""
 
               toolchain = {'name': '${TOOLCHAIN_NAME}', 'version': '${TOOLCHAIN_VERSION}'}
-              easyblock = 'CmdCp'
+              easyblock = 'Tarball'
 
               source_urls = [('https://github.com/${ORGANISATION}/%s/archive/' % (name))]
               sources = [('%s.tar.gz' % (version))]
