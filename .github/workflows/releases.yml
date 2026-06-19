@@ -104,7 +104,7 @@ jobs:
               description = """Nexflow ngs_dna pipeline used in the UMCG."""
 
               toolchain = {'name': '${TOOLCHAIN_NAME}', 'version': '${TOOLCHAIN_VERSION}'}
-              easyblock = 'CmdCp'
+              easyblock = 'Tarball'
 
               source_urls = [('https://github.com/${ORGANISATION}/%s/archive/' % (name))]
               sources = [('%s.tar.gz' % (version))]
@@ -122,7 +122,8 @@ jobs:
               #
               sanity_check_paths = {
                   'files': ['README.md', 'workflow_dragen.nf'],
-                  'dirs': ['modules', 'scripts', 'tests']
+                  'dirs': ['modules', 'scripts', 'test']
+
               }
 
               moduleclass = 'bio'
