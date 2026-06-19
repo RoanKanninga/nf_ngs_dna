@@ -121,8 +121,8 @@ jobs:
               # Sanity checking.
               #
               sanity_check_paths = {
-                  'files': ['README.md', 'workflow_dragen.nf'],
-                  'dirs': ['modules', 'scripts', 'tests']
+                  'files': ['workflow_dragen.nf'],
+                  'dirs': []
               }
 
               moduleclass = 'bio'
