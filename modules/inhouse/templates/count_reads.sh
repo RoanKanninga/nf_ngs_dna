@@ -65,10 +65,6 @@ _save_log() {
 
 rawdata=$(basename "!{params.samplesheet}" '.csv') 
 
-rsync -v "!{params.samplesheet}" "!{params.resultsDir}/${rawdata}/"
-
-
-
 ngsDir="!{params.rawdataDir}/${rawdata}"
 cd "!{params.rawdataDir}/${rawdata}"
 

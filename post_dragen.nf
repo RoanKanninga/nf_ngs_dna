@@ -13,46 +13,46 @@ log.info """\
 include { structure_and_copystats } from './modules/structure_and_copystats'
 include { forcedcalls_inhouse } from './modules/inhouse/forcedcalls_inhouse'
 include { preprocess_inhouse } from './modules/inhouse/preprocess_inhouse'
-include { coverage } from './modules/coverage'
+include { coverage_inhouse } from './modules/inhouse/coverage_inhouse'
 include { multiqc } from './modules/multiqc'
 
 def find_file(sample) {
-    runPrefix=sample.sequencingStartDate + "_" + sample.sequencer + "_" +sample.run + "_" + sample.flowcell
-    String path=params.tmpDataDir + "/results/" + runPrefix + "/Analysis/" + sample.externalSampleID
-    sample.files = file(path+"/*")
-    sample.analysisFolder=params.tmpDataDir + "/results/" + runPrefix + "/Analysis/"
-    sample.projectResultsDir=params.tmpDataDir+"/projects/POST_DRAGEN/"+sample.project+"/run01/results/"
+	runPrefix=sample.sequencingStartDate + "_" + sample.sequencer + "_" +sample.run + "_" + sample.flowcell
+	String path=params.tmpDataDir + "/results/" + runPrefix + "/Analysis/" + sample.externalSampleID
+	sample.files = file(path+"/*")
+	sample.analysisFolder=params.tmpDataDir + "/results/" + runPrefix + "/Analysis/"
+	sample.projectResultsDir=params.tmpDataDir+"/projects/POST_DRAGEN/"+sample.project+"/run01/results/"
 
-    return sample
+	return sample
 }
 
 Channel
-    .fromPath(params.samplesheet)
-    .splitCsv(header: true)
-    .collect()
-    .flatMap { all_rows ->
-        def grouped = all_rows.groupBy { it.externalSampleID }
-        grouped.collect { sampleID, records ->
-            def sample = records[0]
-            def updated = find_file(sample)
-            [ updated, updated.files ]
-        }
-    }
-    .set { ch_input }
+	.fromPath(params.samplesheet)
+	.splitCsv(header: true)
+	.collect()
+	.flatMap { all_rows ->
+		def grouped = all_rows.groupBy { it.externalSampleID }
+		grouped.collect { sampleID, records ->
+			def sample = records[0]
+			def updated = find_file(sample)
+			[ updated, updated.files ]
+		}
+	}
+	.set { ch_input }
 
 workflow {
-    ch_input.first() 
+	ch_input.first()
 	| structure_and_copystats
 
-    ch_input
+	ch_input
 	| forcedcalls_inhouse
 	| preprocess_inhouse
 	| set{ch_processed}
-	
-    ch_processed.collect()
+
+	ch_processed.collect()
 	| multiqc
 
-    ch_processed
-	| coverage
+	ch_processed
+	| coverage_inhouse
 
 }

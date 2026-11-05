@@ -82,5 +82,4 @@ ucscLinkunipDomain=$(cat "/apps/data/nf_ngs_dna/default_link_to_ucsc_unipDomain.
 </Session>
 EOH
 
-rsync -v "!{samples.externalSampleID}.igv.session.xml"  "!{samples.projectResultsDir}/qc/!{samples.externalSampleID}.igv_session_versie8.xml" 
-rsync -v '/apps/data/nf_ngs_dna/hg38_recurrentCNVs.bed' "!{samples.projectResultsDir}/"
+ln -s '/apps/data/nf_ngs_dna/hg38_recurrentCNVs.bed' 'hg38_recurrentCNVs.bed'

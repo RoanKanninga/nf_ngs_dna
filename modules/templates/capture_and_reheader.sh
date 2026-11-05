@@ -8,16 +8,16 @@ bedfile=!{params.dataDir}/!{samples.capturingKit}/human_g1k_v37/captured.merged.
 
 if [[ "!{samples.build}" == "GRCh38" ]]
 then
-    bedfile="!{params.bedfile_GRCh38}"
+	bedfile="!{params.bedfile_GRCh38}"
 fi
 
 echo "##intervals=[${bedfile}]" > "bedfile.txt"
-bcftools reheader -s "!{samples.externalSampleID}.newVCFHeader.txt" "!{genotypedVCF}" | bcftools annotate -h "bedfile.txt" -O v -o "!{genotypedVCF}.tmp"
+bcftools reheader -s "!{samples.externalSampleID}.newVCFHeader.txt" "!{genotypedVCFgz_in}" | bcftools annotate -h "bedfile.txt" -O v -o "reheadered_annotated.tmp.vcf"
 
-bedtools intersect -header -a "!{genotypedVCF}.tmp" -b ${bedfile} > "!{genotypedVCF}.captured.vcf"
+bedtools intersect -header -a "reheadered_annotated.tmp.vcf" -b ${bedfile} > "!{samples.externalSampleID}.captured.vcf"
 
-bgzip -c -f "!{genotypedVCF}.captured.vcf" > "!{genotypedVCF}.captured.vcf.gz"
-tabix -p vcf "!{genotypedVCF}.captured.vcf.gz"
-rename '.variant.calls.genotyped.vcf.captured.vcf' '.captured.vcf' "!{genotypedVCF}.captured.vcf.gz"
+bgzip -c -f "!{samples.externalSampleID}.captured.vcf" > "!{samples.externalSampleID}.captured.vcf.gz"
+tabix -p vcf "!{samples.externalSampleID}.captured.vcf.gz"
 
 touch "!{params.tmpDataDir}/logs/!{samples.project}/run01.nextflow_pipeline.finished"
+

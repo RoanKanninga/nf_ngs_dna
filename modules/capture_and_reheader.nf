@@ -5,20 +5,18 @@ process capture_and_reheader {
    module = ['BEDTools/2.30.0-GCCcore-11.3.0','HTSlib/1.16-GCCcore-11.3.0','BCFtools/1.16-GCCcore-11.3.0']
 
   input: 
-    tuple val(samples), path(genotypedVCF)
+    tuple val(samples), path(genotypedVCFgz_in), path(vcf_index), path(gvcf_files) 
 
     output:
-    tuple val(samples), path(genotypedVCFgz)
+    tuple val(samples), path("*.captured.vcf.gz")
 
 shell:  
 
-  genotypedVCFgz="${samples.externalSampleID}.captured.vcf.gz"
   
   template 'capture_and_reheader.sh'
 
   stub:
-  genotypedVCFgz="${samples.externalSampleID}.captured.vcf.gz"
-  """
-  touch "${genotypedVCFgz}"
+	"""
+   touch "${samples.externalSampleID}.captured.vcf.gz"
   """
 }

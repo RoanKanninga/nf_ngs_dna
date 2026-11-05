@@ -27,7 +27,7 @@ then
 elif [[ -e "!{samples.projectResultsDir}/alignment/!{samples.externalSampleID}.bam" ]]
 then
 	echo "already moved, no worries"
-	cp "!{samples.projectResultsDir}/concordanceCheckSnps/!{samples.externalSampleID}.concordanceCheckCalls.vcf" .
+	ln -s "!{samples.projectResultsDir}/concordanceCheckSnps/!{samples.externalSampleID}.concordanceCheckCalls.vcf" "!{samples.externalSampleID}.concordanceCheckCalls.vcf"
 else
 	
 	echo "The !{samples.externalSampleID}.bam does not exist"
