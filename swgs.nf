@@ -20,7 +20,7 @@ def find_file(sample) {
     if (sample.gsBatchFolderName != ""){
       batch=sample.gsBatchFolderName
     }
-    String path=params.tmpDataDir + batch + "/Analysis/" + sample.GS_ID + "-" + sample.project + "-" + sample.sampleProcessStepID
+    String path=params.tmpDataDir + batch + "/Analysis/" + sample.GS_ID + "-" + sample.projectNameFile + "-" + sample.sampleProcessStepID
     sample.files = file(path+"/*")
     sample.analysisFolder=params.tmpDataDir + batch + "/Analysis/"
     sample.projectResultsDir=params.tmpDataDir+"/projects/POST_DRAGEN/"+sample.project+"/run01/results/"
