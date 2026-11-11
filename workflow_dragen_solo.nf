@@ -25,7 +25,7 @@ workflow {
   Channel
   .fromPath(params.samplesheet)
       .splitCsv(header:true)
-	  .map { find_file(it) }
+      .map { find_file(it) }
       .collect()   
       .flatMap { rows ->
           rows
@@ -33,12 +33,13 @@ workflow {
             .collect { sampleID, recs -> [ recs, sampleID ]}
       }
       .set { ch_samples }
-	  
+
   ch_samples
   | prepare_fastqlist
   | run_dragen_solo
   | set{ch_processed}
   
-  ch_processed.collect()
+  ch_processed.first()
   | create_project_samplesheet
+
   }

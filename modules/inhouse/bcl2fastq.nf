@@ -1,15 +1,19 @@
 process bcl2fastq {
-  label 'bcl2fastq'
-  
-  input: 
-  path(illuminaSamplesheet)
+	label 'bcl2fastq'
+	def rawdata = file(params.samplesheet).getBaseName()
 
-  output:
-  path(fastq_list)
+	publishDir "${params.rawdataDir}/${rawdata}", mode: 'copy', pattern: "*.fq.gz"
+  publishDir "${params.rawdataDir}/${rawdata}", mode: 'copy', pattern: "${file(params.samplesheet).getName()}"
 
-  shell:
-  fastq_list='fastq_list.csv'
-  
-  template 'bcl2fastq.sh'
+	input:
+	path(illuminaSamplesheet)
+
+	output:
+	tuple path("fastq_list.csv"), path("*.fq.gz")
+
+	shell:
+
+
+	template 'bcl2fastq.sh'
 
 }

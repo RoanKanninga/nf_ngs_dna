@@ -8,8 +8,8 @@ bedfile="!{params.dataDir}/UMCG/Diagnostics/Exoom_v4/human_g1k_v37/Exoom_v4.merg
 
 if [[ "!{samples.capturingKit}" == *"Targeted"* ]]
 then
-	bedfile="!{params.dataDir}/Agilent/Targeted_v6/human_g1k_v37/captured.merged.bed"
-	bedfilePerBase="!{params.dataDir}/Agilent/Targeted_v6/human_g1k_v37/captured.uniq.per_base.bed"
+	bedfile="!{params.dataDir}/Agilent/Targeted_v7/human_g1k_v37/captured.merged.bed"
+	bedfilePerBase="!{params.dataDir}/Agilent/Targeted_v7/human_g1k_v37/captured.uniq.per_base.bed"
 	outputName=$(echo "!{samples.capturingKit}" | awk 'BEGIN {FS="/"}{print $2}')
 fi
 
@@ -23,7 +23,7 @@ then
     bedfile="!{params.bedfile_GRCh38}"
 fi
 
-bcftools view --regions-file "${bedfile}"  -O z -o "!{samples.externalSampleID}.hard-filtered.${outputName}.g.vcf.gz"  "!{samples.projectResultsDir}/variants/gVCF/!{samples.externalSampleID}.hard-filtered.g.vcf.gz"
+bcftools view --regions-file "${bedfile}"  -O z -o "!{samples.externalSampleID}.hard-filtered.${outputName}.g.vcf.gz"  "!{samples.externalSampleID}.hard-filtered.g.vcf.gz"
 tabix -p vcf "!{samples.externalSampleID}.hard-filtered.${outputName}.g.vcf.gz"
 
 outputFile="!{samples.externalSampleID}.${outputName}.CoverageOutput.csv"
@@ -55,34 +55,3 @@ awk 'BEGIN{OFS="\t"}{if (NR>1){print (NR-1),$1,$2+1,$3,$8,$4,$12,"CDS","1"}else{
 grep -v "NC_001422.1" "!{samples.externalSampleID}.${outputName}.coveragePerTarget.txt" > "!{samples.externalSampleID}.${outputName}.coveragePerTarget.txt.tmp"
 echo "phiX is removed for !{samples.externalSampleID}.${outputName}.coveragePerTarget" 
 mv -v "!{samples.externalSampleID}.${outputName}.coveragePerTarget.txt.tmp" "!{samples.externalSampleID}.${outputName}.coveragePerTarget.txt"
-
-rsync -v "!{samples.externalSampleID}.incl_TotalAvgCoverage_TotalPercentagebelow10x.txt" "!{samples.projectResultsDir}/coverage/"
-rsync -v "${outputFile}" "!{samples.projectResultsDir}/coverage/"
-
-if [[ "!{samples.Gender}" == "Male" ]]
-then
-	mkdir -p "!{samples.projectResultsDir}/coverage/CoveragePerTarget/male/"
-	rsync -v "!{samples.externalSampleID}.${outputName}.coveragePerTarget"*".txt" "!{samples.projectResultsDir}/coverage/CoveragePerTarget/male/"
-	if [[ "!{samples.capturingKit}" == *"Targeted"* ]]
-	then
-		mkdir -p "!{samples.projectResultsDir}/coverage/CoveragePerBase/male/"
-		rsync -v "!{samples.externalSampleID}.${outputName}.coveragePerBase"*".txt" "!{samples.projectResultsDir}/coverage/CoveragePerBase/male/"
-	fi
-elif [[ "!{samples.Gender}" == "Female" ]]
-then
-	mkdir -p "!{samples.projectResultsDir}/coverage/CoveragePerTarget/female/"
-	rsync -v "!{samples.externalSampleID}.${outputName}.coveragePerTarget"*".txt" "!{samples.projectResultsDir}/coverage/CoveragePerTarget/female/"
-	if [[ "!{samples.capturingKit}" == *"Targeted"* ]]
-	then
-		mkdir -p "!{samples.projectResultsDir}/coverage/CoveragePerBase/female/"
-		rsync -v "!{samples.externalSampleID}.${outputName}.coveragePerBase"*".txt" "!{samples.projectResultsDir}/coverage/CoveragePerBase/female/"
-	fi
-else
-	mkdir -p "!{samples.projectResultsDir}/coverage/CoveragePerTarget/unknown/"
-	rsync -v "!{samples.externalSampleID}.${outputName}.coveragePerTarget"*".txt" "!{samples.projectResultsDir}/coverage/CoveragePerTarget/unknown/"
-	if [[ "!{samples.capturingKit}" == *"Targeted"* ]]
-	then
-		mkdir -p "!{samples.projectResultsDir}/coverage/CoveragePerBase/unknown/"
-		rsync -v "!{samples.externalSampleID}.${outputName}.coveragePerBase"*".txt" "!{samples.projectResultsDir}/coverage/CoveragePerBase/unknown/"
-	fi
-fi

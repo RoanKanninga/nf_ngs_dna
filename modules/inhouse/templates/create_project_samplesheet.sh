@@ -1,8 +1,6 @@
 rawdata=$(basename "!{params.samplesheet}" '.csv') 
 
-rsync -v "!{params.samplesheet}" "!{params.resultsDir}/${rawdata}/"
 touch stats.tsv
-cp stats.tsv "!{params.resultsDir}/${rawdata}/Analysis/"
 
 declare -a sampleSheetColumnNames=()
 declare -A sampleSheetColumnOffsets=()
@@ -24,17 +22,14 @@ if [[ -n "${sampleSheetColumnOffsets['project']+isset}" ]]; then
   projectFieldIndex=$((${sampleSheetColumnOffsets['project']} + 1))
 fi
 
-awk -v p=${projectFieldIndex} 'BEGIN {FS=","}{if (NR>1){print $p}}' "!{params.samplesheet}" > projects.txt
-sort -V projects.txt | uniq > uniqprojects.csv
+awk -v p=${projectFieldIndex} 'BEGIN {FS=","}{if (NR>1){print $p}}' "!{params.samplesheet}" > 'projects.txt'
+sort -V projects.txt | uniq > 'uniqprojects.csv'
 
-
+mkdir POST_DRAGEN
 while read project
 do
-	head -1 "!{params.samplesheet}" > "${project}.csv"
-#	awk -v eIndex=${externalSampleIDFieldIndex} -F',' '{if (NR>1){print $eIndex}}' "!{params.samplesheet}" | sort -u > "${project}.uniquesamples"
-	#while read line ; do grep "${line}" "!{params.samplesheet}"| head -1 >> "${project}.csv"; done<"${project}.uniquesamples"
-	grep "${project}" "!{params.samplesheet}" >> "${project}.csv"
-	rsync -v "${project}.csv" "!{params.tmpDataDir}/Samplesheets/POST_DRAGEN/"
-done< uniqprojects.csv
+	head -1 "!{params.samplesheet}" > "POST_DRAGEN/${project}.csv"
+	grep "${project}" "!{params.samplesheet}" >> "POST_DRAGEN/${project}.csv"
+done< 'uniqprojects.csv'
 
 touch "!{params.tmpDataDir}/logs/${rawdata}/run01.demultiplexing.finished"

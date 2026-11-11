@@ -3,178 +3,106 @@
 set -o pipefail
 set -eu
 
+#
+# bam /cram
+#
+if ls "!{samples.combinedIdentifier}.bam"* 1> /dev/null 2>&1
+then
+	for file in "!{samples.combinedIdentifier}.bam"*
+	do
+		new_name=$(echo "${file}" | sed "s|!{samples.combinedIdentifier}|!{samples.externalSampleID}|")
+		ln -s "${file}" "${new_name}"
+	done
+fi
+
+if ls "!{samples.combinedIdentifier}.cram"* 1> /dev/null 2>&1
+then
+	for file in "!{samples.combinedIdentifier}.cram"*
+	do
+		new_name=$(echo "${file}" | sed "s|!{samples.combinedIdentifier}|!{samples.externalSampleID}|")
+		ln -s "${file}" "${new_name}"
+	done
+fi
+
+#
+# Prep
+#
 perl -pi -e 's|!{samples.combinedIdentifier}|!{samples.externalSampleID}|' "!{samples.combinedIdentifier}"*.md5*
 
 rename "!{samples.combinedIdentifier}" "!{samples.externalSampleID}" "!{samples.combinedIdentifier}"*
 
-bedfile=!{params.dataDir}/!{samples.capturingKit}/human_g1k_v37/captured.merged.bed
+bedfile="!{params.dataDir}/!{samples.capturingKit}/human_g1k_v37/captured.merged.bed"
 
 if grep "!{samples.combinedIdentifier}" "!{samples.projectResultsDir}/qc/stats.tsv"
 then	
-	grep "!{samples.combinedIdentifier}" "!{samples.projectResultsDir}/qc/stats.tsv" | perl -p -e "s|!{samples.combinedIdentifier}|!{samples.externalSampleID}|" >>  "!{samples.projectResultsDir}/qc/statsRenamed.tsv"
+	grep "!{samples.combinedIdentifier}" "!{samples.projectResultsDir}/qc/stats.tsv" | perl -p -e "s|!{samples.combinedIdentifier}|!{samples.externalSampleID}|" >> 'statsRenamed.tsv'
 fi
 
-perl -p -e "s|!{samples.combinedIdentifier}|!{samples.externalSampleID}|g" "!{samples.externalSampleID}.cnv.igv_session.xml" > "!{samples.projectResultsDir}/qc/!{samples.externalSampleID}.cnv.igv_session.xml"
+perl -p -e "s|!{samples.combinedIdentifier}|!{samples.externalSampleID}|g" "!{samples.externalSampleID}.cnv.igv_session.xml" > "!{samples.externalSampleID}.cnv.igv_session.xml"
 
 if [[ "!{samples.build}" == "GRCh38" ]]
 then
-    bedfile="!{params.bedfile_GRCh38}"
+	bedfile="!{params.bedfile_GRCh38}"
 fi
 
 echo -e "!{samples.combinedIdentifier}" "!{samples.externalSampleID}" > "!{samples.externalSampleID}.newVCFHeader.txt"
 
+#
+# vcf and gVCF
+#
 bcftools annotate -x 'FORMAT/AF,FORMAT/F1R2,FORMAT/F2R1,FORMAT/GP' "!{samples.externalSampleID}.hard-filtered.vcf.gz" > "!{samples.externalSampleID}.variant.calls.genotyped.vcf"
 bcftools reheader -s "!{samples.externalSampleID}.newVCFHeader.txt" "!{samples.externalSampleID}.variant.calls.genotyped.vcf" -o "!{samples.externalSampleID}.variant.calls.reheadered.genotyped.vcf"
 bgzip -c -f "!{samples.externalSampleID}.variant.calls.reheadered.genotyped.vcf" > "!{samples.externalSampleID}.variant.calls.genotyped.vcf.gz"
 tabix -p vcf "!{samples.externalSampleID}.variant.calls.genotyped.vcf.gz"
-rsync -Lv "!{samples.externalSampleID}.variant.calls.genotyped.vcf.gz"* "!{samples.projectResultsDir}/variants/"
 
-#
-## gVCF
-#
 if [[ -e "!{samples.externalSampleID}.hard-filtered.gvcf.gz" ]]
 then
 	bcftools reheader -s "!{samples.externalSampleID}.newVCFHeader.txt" "!{samples.externalSampleID}.hard-filtered.gvcf.gz" -o "!{samples.externalSampleID}.hard-filtered.g.vcf.gz"
 	tabix -p vcf "!{samples.externalSampleID}.hard-filtered.g.vcf.gz"
 	md5sum "!{samples.externalSampleID}.hard-filtered.g.vcf.gz" > "!{samples.externalSampleID}.hard-filtered.g.vcf.gz.md5"
-	rsync -v "!{samples.externalSampleID}.hard-filtered.g.vcf.gz"{,.tbi,.md5} "!{samples.projectResultsDir}/variants/gVCF/"
-fi
-#
-## alignment
-#
-if [[ -e "!{samples.externalSampleID}.bam" ]]
-then
-	for i in "!{samples.externalSampleID}.bam"*
-	do  
-		if [[ -L "${i}" ]]
-		then
-			mv $(readlink "${i}") "!{samples.projectResultsDir}/alignment/"
-		else
-			rsync -v ${i} "!{samples.projectResultsDir}/alignment/"
-		fi
-	done
-	rename "!{samples.combinedIdentifier}" "!{samples.externalSampleID}" "!{samples.projectResultsDir}/alignment/!{samples.combinedIdentifier}"*.bam*
 fi
 
 #
-## alignment
-#
-if [[ -e "!{samples.externalSampleID}.cram" ]]
-then
-	for i in "!{samples.externalSampleID}.cram"*
-	do  
-		if [[ -L "${i}" ]]
-		then
-			mv $(readlink "${i}") "!{samples.projectResultsDir}/alignment/"
-		else
-			rsync -v "${i}" "!{samples.projectResultsDir}/alignment/"
-		fi
-	done
-	rename "!{samples.combinedIdentifier}" "!{samples.externalSampleID}" "!{samples.projectResultsDir}/alignment/!{samples.combinedIdentifier}"*.cram*
-fi
-
-
-#
-## sv
+# SV and CNV
 #
 if [[ -e "!{samples.externalSampleID}.sv.vcf.gz" ]]
 then
 	bcftools reheader -s "!{samples.externalSampleID}.newVCFHeader.txt" "!{samples.externalSampleID}.sv.vcf.gz" -o "!{samples.externalSampleID}.sv.reheadered.vcf.gz"
 	tabix -p vcf "!{samples.externalSampleID}.sv.reheadered.vcf.gz"
-	rsync -v "!{samples.externalSampleID}.sv.reheadered.vcf.gz" "!{samples.projectResultsDir}/variants/sv/!{samples.externalSampleID}.sv.vcf.gz"
-	rsync -v "!{samples.externalSampleID}.sv.reheadered.vcf.gz.tbi" "!{samples.projectResultsDir}/variants/sv/!{samples.externalSampleID}.sv.vcf.gz.tbi"
-
 fi
 
-#
-## cnv
-#
 if [[ -e "!{samples.externalSampleID}.cnv.vcf.gz" ]]
 then
-
 	bcftools reheader -s "!{samples.externalSampleID}.newVCFHeader.txt" "!{samples.externalSampleID}.cnv.vcf.gz" -o "!{samples.externalSampleID}.cnv.reheadered.vcf.gz"
-	tabix -p vcf "!{samples.externalSampleID}.cnv.reheadered.vcf.gz"
-	rsync -v "!{samples.externalSampleID}.cnv.reheadered.vcf.gz" "!{samples.projectResultsDir}/variants/cnv/!{samples.externalSampleID}.cnv.vcf.gz"
-	rsync -v "!{samples.externalSampleID}.cnv.reheadered.vcf.gz.tbi" "!{samples.projectResultsDir}/variants/cnv/!{samples.externalSampleID}.cnv.vcf.gz.tbi"
-
-	md5sum "!{samples.projectResultsDir}/variants/cnv/!{samples.externalSampleID}.cnv.vcf.gz" > "!{samples.projectResultsDir}/variants/cnv/!{samples.externalSampleID}.cnv.vcf.gz.md5" 
-
-	rsync -Lv "!{samples.externalSampleID}.cnv.excluded_intervals.bed.gz" "!{samples.projectResultsDir}/variants/cnv/"
-	rsync -Lv "!{samples.externalSampleID}.cnv.gff3" "!{samples.projectResultsDir}/variants/cnv/"
-	
-
-fi 
-
-if [[ -e "!{samples.externalSampleID}.target.counts.gz" ]]
-then
-	rsync -Lv "!{samples.externalSampleID}"*target.counts* "!{samples.projectResultsDir}/variants/cnv/"
-fi
-if [[ -e "!{samples.externalSampleID}.tn.tsv.gz" ]]
-then
-	rsync -Lv "!{samples.externalSampleID}"*.tn* "!{samples.projectResultsDir}/variants/cnv/"
-fi
-if [[ -e "!{samples.externalSampleID}.seg" ]]
-then
-	rsync -Lv "!{samples.externalSampleID}"*.seg* "!{samples.projectResultsDir}/variants/cnv/"
+	mv "!{samples.externalSampleID}.cnv.reheadered.vcf.gz" "!{samples.externalSampleID}.cnv.vcf.gz"
+	tabix -p vcf "!{samples.externalSampleID}.cnv.vcf.gz"
+	md5sum "!{samples.externalSampleID}.cnv.vcf.gz" > "!{samples.externalSampleID}.cnv.reheadered.vcf.gz.md5"
 fi
 
 #
-## variants
+# SV
 #
-if [[ -e "!{samples.externalSampleID}.roh.bed" ]]
-then
-	rsync -Lv "!{samples.externalSampleID}.roh.bed" "!{samples.projectResultsDir}/variants/"
-fi
-if [[ -e "!{samples.externalSampleID}.hard-filtered.baf.bw" ]]
-then
-	rsync -Lv "!{samples.externalSampleID}.hard-filtered.baf.bw" "!{samples.projectResultsDir}/variants/"
-fi
-if [[ -e "!{samples.externalSampleID}.ploidy.vcf.gz" ]]
-then
-	rsync -Lv "!{samples.externalSampleID}.ploidy.vcf.gz"* "!{samples.projectResultsDir}/variants/"
-fi
-
-#
-## qc
-#
-if [[ -e "!{samples.externalSampleID}.html" ]]
-then
-	rsync -Lv "!{samples.externalSampleID}"*.{json,html} "!{samples.projectResultsDir}/qc/"
-fi
-if [[ -e "!{samples.externalSampleID}.improper.pairs.bw" ]]
-then
-	rsync -Lv "!{samples.externalSampleID}.improper.pairs.bw" "!{samples.projectResultsDir}/qc/"
-fi
 if [[ -e "sv" ]]
 then
-	rsync -Lrv "sv/" "!{samples.projectResultsDir}/variants/sv/!{samples.externalSampleID}"
+	mv 'sv' 'sv_dir'
 fi
 
 #
-## additional_analysis
+#additional analysis
 #
 if [[ -e "!{samples.externalSampleID}.targeted.json" ]]
 then
 	perl -p -e "s|!{samples.combinedIdentifier}|!{samples.externalSampleID}|g" "!{samples.externalSampleID}.targeted.json" > "!{samples.externalSampleID}.targeted.renamed.json"
-
-	rsync -Lv "!{samples.externalSampleID}.targeted.renamed.json" "!{samples.projectResultsDir}/variants/additional_analysis/!{samples.externalSampleID}.targeted.json"
 fi
+
 if [[ -e "!{samples.externalSampleID}.targeted.vcf.gz" ]]
 then
 	bcftools reheader -s "!{samples.externalSampleID}.newVCFHeader.txt" "!{samples.externalSampleID}.targeted.vcf.gz" -o "!{samples.externalSampleID}.targeted.reheadered.vcf.gz"
 	tabix -p vcf "!{samples.externalSampleID}.targeted.reheadered.vcf.gz"
-	rsync -Lv "!{samples.externalSampleID}.targeted.reheadered.vcf.gz" "!{samples.projectResultsDir}/variants/additional_analysis/!{samples.externalSampleID}.targeted.vcf.gz"
-	rsync -Lv "!{samples.externalSampleID}.targeted.reheadered.vcf.gz.tbi" "!{samples.projectResultsDir}/variants/additional_analysis/!{samples.externalSampleID}.targeted.vcf.gz.tbi"
 fi
+
 if [[ -e "!{samples.externalSampleID}.repeats.vcf.gz" ]]
 then
 	bcftools reheader -s "!{samples.externalSampleID}.newVCFHeader.txt" "!{samples.externalSampleID}.repeats.vcf.gz" -o "!{samples.externalSampleID}.repeats.reheadered.vcf.gz"
 	tabix -p vcf "!{samples.externalSampleID}.repeats.reheadered.vcf.gz"
-
-	rsync -Lv "!{samples.externalSampleID}.repeats.reheadered.vcf.gz" "!{samples.projectResultsDir}/variants/additional_analysis/!{samples.externalSampleID}.repeats.vcf.gz"
-	rsync -Lv "!{samples.externalSampleID}.repeats.reheadered.vcf.gz.tbi" "!{samples.projectResultsDir}/variants/additional_analysis/!{samples.externalSampleID}.repeats.vcf.gz.tbi"
-fi
-if [[ -e "!{samples.externalSampleID}.repeats.bam" ]]
-then
-	rsync -Lv "!{samples.externalSampleID}.repeats.bam" "!{samples.projectResultsDir}/variants/additional_analysis/"
 fi
