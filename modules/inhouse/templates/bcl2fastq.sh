@@ -5,7 +5,7 @@ then
 	cp 'Reports/fastq_list.csv' 'fastq_list.csv'
 else
   echo "Something went wrong with the execution of the bcl-conversion"
-	exit
+	exit 1
 fi
 
 cp "!{params.samplesheet}" '.'
