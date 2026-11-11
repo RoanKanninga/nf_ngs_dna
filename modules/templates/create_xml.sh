@@ -82,4 +82,4 @@ ucscLinkunipDomain=$(cat "/apps/data/nf_ngs_dna/default_link_to_ucsc_unipDomain.
 </Session>
 EOH
 
-ln -s '/apps/data/nf_ngs_dna/hg38_recurrentCNVs.bed' 'hg38_recurrentCNVs.bed'
+ln -s "!{recurrentCNVsBed}" 'hg38_recurrentCNVs.bed'
