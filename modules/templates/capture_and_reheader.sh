@@ -4,7 +4,7 @@ set -o pipefail
 set -eu
 
 echo -e "!{samples.combinedIdentifier}" "!{samples.externalSampleID}" > "!{samples.externalSampleID}.newVCFHeader.txt"
-bedfile=!{params.dataDir}/!{samples.capturingKit}/human_g1k_v37/captured.merged.bed
+bedfile="!{params.dataDir}/!{samples.capturingKit}/human_g1k_v37/captured.merged.bed"
 
 if [[ "!{samples.build}" == "GRCh38" ]]
 then

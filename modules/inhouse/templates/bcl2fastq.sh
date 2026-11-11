@@ -65,8 +65,8 @@ do
 	mv "${oldFastQfile1}" "${newFastQfile1}"
 	mv "${oldFastQfile2}" "${newFastQfile2}"
 
-	sed -i "s|${oldName1}|${newFastQfile1}|g" fastq_list.csv
-	sed -i "s|${oldName2}|${newFastQfile2}|g" fastq_list.csv
+	sed -i "s|${oldName1}|${newFastQfile1}|g" 'fastq_list.csv'
+	sed -i "s|${oldName2}|${newFastQfile2}|g" 'fastq_list.csv'
 
 done<"!{params.samplesheet}"
 count=0
@@ -74,13 +74,13 @@ while read fastq_list
 do
 	if [[ "${count}" == 0 ]]
 	then
-		echo "${fastq_list},capturingKit" > new_fastq_list.csv
+		echo "${fastq_list},capturingKit" > 'new_fastq_list.csv'
 		count=1
 	else
 		extId=$(echo "${fastq_list}" | awk 'BEGIN {FS=","}{print $2}')
 		captKit=$(grep ${extId} "!{params.samplesheet}" | head -1 | awk -v eIndex="${capturingKitFieldIndex}" 'BEGIN {FS=","}{print $eIndex}')
 		captKit=$(echo "${captKit}" | awk 'BEGIN {FS="/"}{print $2}')
-		echo -e "${fastq_list},${captKit}" >> new_fastq_list.csv
+		echo -e "${fastq_list},${captKit}" >> 'new_fastq_list.csv'
 	fi
 done<fastq_list.csv
 

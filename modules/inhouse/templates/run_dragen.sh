@@ -90,7 +90,7 @@ do
 
 
 		case_counts="!{params.resultsDir}/${rawdata}/Analysis/${sampleId}/${sampleId}.target.counts.gz"
-		first_pon="/staging/development//PanelOfNormal_CNV/targetCounts/19840001_2574354_DNA199404_811394_MAGR793A_3496881_847388_3440010.target.counts.gz"
+		first_pon=$(ls -1 /staging/development//PanelOfNormal_CNV/targetCounts/*target.counts.gz | head -1)
 
 		# header and put cnv-filter-duplicate-alignments to 0
 		zgrep "^#" "${case_counts}" | sed 's/cnv-filter-duplicate-alignments=1/cnv-filter-duplicate-alignments=0/g' > 'case_header.txt'

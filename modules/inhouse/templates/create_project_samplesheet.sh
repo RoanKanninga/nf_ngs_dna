@@ -22,14 +22,14 @@ if [[ -n "${sampleSheetColumnOffsets['project']+isset}" ]]; then
   projectFieldIndex=$((${sampleSheetColumnOffsets['project']} + 1))
 fi
 
-awk -v p=${projectFieldIndex} 'BEGIN {FS=","}{if (NR>1){print $p}}' "!{params.samplesheet}" > projects.txt
-sort -V projects.txt | uniq > uniqprojects.csv
+awk -v p=${projectFieldIndex} 'BEGIN {FS=","}{if (NR>1){print $p}}' "!{params.samplesheet}" > 'projects.txt'
+sort -V projects.txt | uniq > 'uniqprojects.csv'
 
 mkdir POST_DRAGEN
 while read project
 do
 	head -1 "!{params.samplesheet}" > "POST_DRAGEN/${project}.csv"
 	grep "${project}" "!{params.samplesheet}" >> "POST_DRAGEN/${project}.csv"
-done< uniqprojects.csv
+done< 'uniqprojects.csv'
 
 touch "!{params.tmpDataDir}/logs/${rawdata}/run01.demultiplexing.finished"

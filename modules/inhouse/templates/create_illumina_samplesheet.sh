@@ -43,12 +43,12 @@ flowcellFieldIndex=$((${sampleSheetColumnOffsets['flowcell']} + 1))
 barcode1FieldIndex=$((${sampleSheetColumnOffsets['barcode1']} + 1))
 barcode2FieldIndex=$((${sampleSheetColumnOffsets['barcode2']} + 1))
 
-echo -e "[Data]\nFCID,Lane,Sample_ID,Index,Index2" > IlluminaSamplesheet.csv
+echo -e "[Data]\nFCID,Lane,Sample_ID,Index,Index2" > 'IlluminaSamplesheet.csv'
 awk -v e=${externalSampleIDFieldIndex} -v l=${laneFieldIndex} -v f=${flowcellFieldIndex} -v b1=${barcode1FieldIndex} -v b2=${barcode2FieldIndex} 'BEGIN {FS=","}{OFS=","}{if (NR>1){print $f,$l,$e,$b1,$b2}}' "${sampleSheet}" >> IlluminaSamplesheet.csv
 
 if [[ ${dualbarcode} == 'n' ]]
 then
-	echo -e "[Settings]\nOverrideCycles,Y151;I8N1;Y151" >> IlluminaSamplesheet.csv
+	echo -e "[Settings]\nOverrideCycles,Y151;I8N1;Y151" >> 'IlluminaSamplesheet.csv'
 
 fi
 

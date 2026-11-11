@@ -6,18 +6,18 @@ set -eu
 #
 # bam /cram
 #
-if ls !{samples.combinedIdentifier}.bam* 1> /dev/null 2>&1
+if ls "!{samples.combinedIdentifier}.bam"* 1> /dev/null 2>&1
 then
-	for file in !{samples.combinedIdentifier}.bam*
+	for file in "!{samples.combinedIdentifier}.bam"*
 	do
 		new_name=$(echo "${file}" | sed "s|!{samples.combinedIdentifier}|!{samples.externalSampleID}|")
 		ln -s "${file}" "${new_name}"
 	done
 fi
 
-if ls !{samples.combinedIdentifier}.cram* 1> /dev/null 2>&1
+if ls "!{samples.combinedIdentifier}.cram"* 1> /dev/null 2>&1
 then
-	for file in !{samples.combinedIdentifier}.cram*
+	for file in "!{samples.combinedIdentifier}.cram"*
 	do
 		new_name=$(echo "${file}" | sed "s|!{samples.combinedIdentifier}|!{samples.externalSampleID}|")
 		ln -s "${file}" "${new_name}"
@@ -31,11 +31,11 @@ perl -pi -e 's|!{samples.combinedIdentifier}|!{samples.externalSampleID}|' "!{sa
 
 rename "!{samples.combinedIdentifier}" "!{samples.externalSampleID}" "!{samples.combinedIdentifier}"*
 
-bedfile=!{params.dataDir}/!{samples.capturingKit}/human_g1k_v37/captured.merged.bed
+bedfile="!{params.dataDir}/!{samples.capturingKit}/human_g1k_v37/captured.merged.bed"
 
 if grep "!{samples.combinedIdentifier}" "!{samples.projectResultsDir}/qc/stats.tsv"
 then	
-	grep "!{samples.combinedIdentifier}" "!{samples.projectResultsDir}/qc/stats.tsv" | perl -p -e "s|!{samples.combinedIdentifier}|!{samples.externalSampleID}|" >> statsRenamed.tsv
+	grep "!{samples.combinedIdentifier}" "!{samples.projectResultsDir}/qc/stats.tsv" | perl -p -e "s|!{samples.combinedIdentifier}|!{samples.externalSampleID}|" >> 'statsRenamed.tsv'
 fi
 
 perl -p -e "s|!{samples.combinedIdentifier}|!{samples.externalSampleID}|g" "!{samples.externalSampleID}.cnv.igv_session.xml" > "!{samples.externalSampleID}.cnv.igv_session.xml"
